@@ -101,7 +101,6 @@ wait(15, MSEC)
 # Main driving thread
 intake.set_velocity(100, PERCENT)
 def drive_task() -> None:
-
     while True:
 
         # Motor control
