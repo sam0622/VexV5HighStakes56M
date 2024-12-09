@@ -27,10 +27,9 @@ drive_motors_right: MotorGroup = MotorGroup(drive_fr, drive_mr, drive_br)
 drive_motors_left: MotorGroup = MotorGroup(drive_fl, drive_ml, drive_bl)
 intake.set_velocity(100, PERCENT)
 
-# Vision configuration
-BLUE_RING: Signature = Signature(1, -5535, -4895, -5214,2881, 4879, 3880,4.5, 0)
-RED_RING: Signature = Signature(0, 0, 0, 0, 0, 0, 0, 0, 0)
-vision_sensor: Vision = Vision(Ports.PORT15, 50, BLUE_RING, RED_RING)
+# Pneumatics configuration
+goal_lock: DigitalOut = DigitalOut(brain.three_wire_port.a)
+goal_release: DigitalOut = DigitalOut(brain.three_wire_port.b)
 
 #-----------------#
 # Auton functions #
@@ -92,10 +91,20 @@ def controller_L2_pressed() -> None:
         wait(5, MSEC)
     intake.stop()
 
+def controller_A_pressed() -> None:
+    if goal_lock.value() == 0:
+        goal_lock.set(True)
+        goal_release.set(False)
+    else:
+        goal_lock.set(False)
+        goal_release.set(True)
+
+
 controller_1.buttonR1.pressed(controller_R1_pressed)
 controller_1.buttonL1.pressed(controller_L1_pressed)
 controller_1.buttonR2.pressed(controller_R2_pressed)
 controller_1.buttonL2.pressed(controller_L2_pressed)
+controller_1.buttonA.pressed(controller_A_pressed)
 wait(15, MSEC)
 
 # Main driving thread
@@ -112,10 +121,6 @@ def drive_task() -> None:
         
         wait(5, MSEC)
 
-# Processing for vision sensor
-def vision_processing() -> None:
-    pass
-
 def pre_autonomous() -> None:
     pass
 
@@ -124,4 +129,3 @@ def autonomous() -> None:
 
 def user_control() -> None:
     drive_thread: Thread = Thread(drive_task)
-    vision_thread: Thread = Thread(vision_processing)
