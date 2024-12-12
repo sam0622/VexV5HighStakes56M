@@ -11,28 +11,27 @@
 
 # Library imports
 from vex import *
-from os import name
 
 # Brain + Controller definition
 brain: Brain = Brain()
 controller_1: Controller = Controller()
 
 # Motor configuration
-drive_fr: Motor = Motor(Ports.PORT2, True)
-drive_fl: Motor = Motor(Ports.PORT8, False)
-drive_mr: Motor = Motor(Ports.PORT4, True)
-drive_ml: Motor = Motor(Ports.PORT7, False)
-drive_br: Motor = Motor(Ports.PORT5, True)
-drive_bl: Motor = Motor(Ports.PORT6, False)
-intake: Motor = Motor(Ports.PORT18, True)
-conveyor: Motor = Motor(Ports.PORT9, True)
+drive_fl: Motor = Motor(Ports.PORT11, False)
+drive_ml: Motor = Motor(Ports.PORT12, False)
+drive_bl: Motor = Motor(Ports.PORT13, False)
+drive_fr: Motor = Motor(Ports.PORT16, True)
+drive_mr: Motor = Motor(Ports.PORT17, False)
+drive_br: Motor = Motor(Ports.PORT18, False)
+conveyor: Motor = Motor(Ports.PORT10, True)
+intake: Motor = Motor(Ports.PORT9, True)
+
 drive_motors_right: MotorGroup = MotorGroup(drive_fr, drive_mr, drive_br)
 drive_motors_left: MotorGroup = MotorGroup(drive_fl, drive_ml, drive_bl)
 intake.set_velocity(100, PERCENT)
 
 # Pneumatics configuration
-goal_lock: DigitalOut = DigitalOut(brain.three_wire_port.a)
-goal_release: DigitalOut = DigitalOut(brain.three_wire_port.b)
+goal_solenoid: DigitalOut = DigitalOut(brain.three_wire_port.a)
 # endregion
 
 # region Auton Functions
@@ -104,12 +103,10 @@ def controller_L2_pressed() -> None:
 
 
 def controller_A_pressed() -> None:
-    if goal_lock.value() == 0:
-        goal_lock.set(True)
-        goal_release.set(False)
+    if goal_solenoid.value() == 0:
+        goal_solenoid.set(True)
     else:
-        goal_lock.set(False)
-        goal_release.set(True)
+        goal_solenoid.set(False)
 
 
 controller_1.buttonR1.pressed(controller_R1_pressed)
