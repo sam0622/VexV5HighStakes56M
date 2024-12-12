@@ -28,11 +28,12 @@ intake: Motor = Motor(Ports.PORT9, True)
 
 drive_motors_right: MotorGroup = MotorGroup(drive_fr, drive_mr, drive_br)
 drive_motors_left: MotorGroup = MotorGroup(drive_fl, drive_ml, drive_bl)
+conveyor.set_velocity(100, PERCENT)
 intake.set_velocity(100, PERCENT)
 
 # Pneumatics configuration
 goal_solenoid: DigitalOut = DigitalOut(brain.three_wire_port.a)
-
+goal_solenoid.set(1)
 # Auton conditions
 is_defense: bool = True
 is_auton: bool = True
