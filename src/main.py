@@ -22,7 +22,7 @@ drive_ml: Motor = Motor(Ports.PORT12, False)
 drive_bl: Motor = Motor(Ports.PORT13, False)
 drive_fr: Motor = Motor(Ports.PORT16, True)
 drive_mr: Motor = Motor(Ports.PORT17, False)
-drive_br: Motor = Motor(Ports.PORT18, False)
+drive_br: Motor = Motor(Ports.PORT18, True)
 conveyor: Motor = Motor(Ports.PORT10, True)
 intake: Motor = Motor(Ports.PORT9, True)
 
@@ -148,6 +148,7 @@ def drive_task() -> None:
 
         drive_motors_right.set_velocity(controller_1.axis2.position(), PERCENT)
         drive_motors_left.set_velocity(controller_1.axis3.position(), PERCENT)
+        print(drive_motors_left.velocity(PERCENT), drive_motors_right.velocity(PERCENT))
 
         wait(5, MSEC)
 
