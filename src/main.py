@@ -32,6 +32,10 @@ intake.set_velocity(100, PERCENT)
 
 # Pneumatics configuration
 goal_solenoid: DigitalOut = DigitalOut(brain.three_wire_port.a)
+
+# Auton conditions
+is_defense: bool = True
+is_auton: bool = True
 # endregion
 
 # region Auton Functions
@@ -83,7 +87,7 @@ def controller_R1_pressed() -> None:
 
 def controller_L1_pressed() -> None:
     conveyor.spin(REVERSE)
-    while controller_1.buttonR1.pressing():
+    while controller_1.buttonL1.pressing():
         wait(5, MSEC)
     conveyor.stop()
 
@@ -109,11 +113,21 @@ def controller_A_pressed() -> None:
         goal_solenoid.set(False)
 
 
+def controller_B_pressed() -> None:
+    global is_auton, is_defense
+    if is_auton:
+        if is_defense:
+            is_defense = False
+        else:
+            is_defense = True
+
+
 controller_1.buttonR1.pressed(controller_R1_pressed)
 controller_1.buttonL1.pressed(controller_L1_pressed)
 controller_1.buttonR2.pressed(controller_R2_pressed)
 controller_1.buttonL2.pressed(controller_L2_pressed)
 controller_1.buttonA.pressed(controller_A_pressed)
+
 wait(15, MSEC)
 # endregion
 
@@ -123,7 +137,9 @@ intake.set_velocity(100, PERCENT)
 
 
 def drive_task() -> None:
+    global is_auton
     while True:
+        is_auton = False
 
         # Motor control
         drive_motors_right.spin(FORWARD)
@@ -136,15 +152,26 @@ def drive_task() -> None:
 
 
 def pre_autonomous() -> None:
+    global is_auton
+    is_auton = True
     pass
 
 
 def autonomous() -> None:
-    pass
+    global is_auton, is_defense
+    is_auton = True
+    if is_defense:
+        pass
+    else:
+        pass
 
 
 def user_control() -> None:
-    drive_thread: Thread = Thread(drive_task)
+    is_auton = False
+    drive_task()
 
+
+comp: Competition = Competition(user_control, autonomous)
+pre_autonomous()
 
 # endregion
