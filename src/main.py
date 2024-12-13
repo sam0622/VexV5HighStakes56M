@@ -19,7 +19,7 @@ controller_1: Controller = Controller()
 # Motor configuration
 drive_fl: Motor = Motor(Ports.PORT11, False)
 drive_ml: Motor = Motor(Ports.PORT12, False)
-drive_bl: Motor = Motor(Ports.PORT13, False)
+drive_bl: Motor = Motor(Ports.PORT13, True)
 drive_fr: Motor = Motor(Ports.PORT16, True)
 drive_mr: Motor = Motor(Ports.PORT17, False)
 drive_br: Motor = Motor(Ports.PORT18, True)
