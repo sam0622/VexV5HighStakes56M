@@ -37,6 +37,7 @@ goal_solenoid.set(1)
 # Auton conditions
 is_defense: bool = True
 is_auton: bool = True
+is_pre_auton: bool = True
 # endregion
 
 # region Auton Functions
@@ -115,12 +116,19 @@ def controller_A_pressed() -> None:
 
 
 def controller_B_pressed() -> None:
-    global is_auton, is_defense
-    if is_auton:
+    global is_auton, is_pre_auton, is_defense
+    if is_auton and is_pre_auton:
+        controller_1.rumble(".--")
         if is_defense:
             is_defense = False
+            controller_1.screen.clear_screen()
+            controller_1.screen.print("Offense")
         else:
+            controller_1.screen.clear_screen()
+            controller_1.screen.print("Defense")
             is_defense = True
+    else:
+        controller_1.rumble(".")
 
 
 controller_1.buttonR1.pressed(controller_R1_pressed)
@@ -128,6 +136,7 @@ controller_1.buttonL1.pressed(controller_L1_pressed)
 controller_1.buttonR2.pressed(controller_R2_pressed)
 controller_1.buttonL2.pressed(controller_L2_pressed)
 controller_1.buttonA.pressed(controller_A_pressed)
+controller_1.buttonB.pressed(controller_B_pressed)
 
 wait(15, MSEC)
 # endregion
@@ -138,10 +147,10 @@ intake.set_velocity(100, PERCENT)
 
 
 def drive_task() -> None:
-    global is_auton
+    global is_auton, is_pre_auton
     while True:
-        is_auton = False
-
+        is_auton, is_pre_auton = False, False
+        
         # Motor control
         drive_motors_right.spin(FORWARD)
         drive_motors_left.spin(FORWARD)
@@ -154,14 +163,15 @@ def drive_task() -> None:
 
 
 def pre_autonomous() -> None:
-    global is_auton
-    is_auton = True
+    global is_auton, is_pre_auton
+    is_auton, is_pre_auton  = True, True
+    controller_1.screen.print("Defense")
     pass
 
 
 def autonomous() -> None:
     global is_auton, is_defense
-    is_auton = True
+    is_auton, is_pre_auton = True, False
     if is_defense:
         pass
     else:
@@ -169,7 +179,7 @@ def autonomous() -> None:
 
 
 def user_control() -> None:
-    is_auton = False
+    is_auton, is_pre_auton = False, False
     drive_task()
 
 
