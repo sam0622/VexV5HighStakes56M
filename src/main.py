@@ -109,10 +109,7 @@ def controller_L2_pressed() -> None:
 
 
 def controller_A_pressed() -> None:
-    if goal_solenoid.value() == 0:
-        goal_solenoid.set(True)
-    else:
-        goal_solenoid.set(False)
+    switch_goal_lock()
 
 
 def controller_B_pressed() -> None:
@@ -144,6 +141,13 @@ wait(15, MSEC)
 # region Control
 
 intake.set_velocity(100, PERCENT)
+
+
+def switch_goal_lock() -> None:
+    if goal_solenoid.value() == 0:
+        goal_solenoid.set(True)
+    else:
+        goal_solenoid.set(False)
 
 
 def drive_task() -> None:
