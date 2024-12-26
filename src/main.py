@@ -17,82 +17,81 @@ brain: Brain = Brain()
 controller_1: Controller = Controller()
 
 # Motor configuration
-drive_fl: Motor = Motor(Ports.PORT11, False)
-drive_ml: Motor = Motor(Ports.PORT12, False)
-drive_bl: Motor = Motor(Ports.PORT13, True)
-drive_fr: Motor = Motor(Ports.PORT16, True)
-drive_mr: Motor = Motor(Ports.PORT17, False)
-drive_br: Motor = Motor(Ports.PORT18, True)
-conveyor: Motor = Motor(Ports.PORT10, True)
-intake: Motor = Motor(Ports.PORT9, True)
+top_left: Motor = Motor(Ports.PORT18, False, GearSetting.RATIO_6_1)
+bottom_left: Motor = Motor(Ports.PORT17, True, GearSetting.RATIO_6_1)
+back_left: Motor = Motor(Ports.PORT16, True, GearSetting.RATIO_6_1)
+top_right: Motor = Motor(Ports.PORT10, False, GearSetting.RATIO_6_1)
+bottom_right: Motor = Motor(Ports.PORT9, False, GearSetting.RATIO_6_1)
+back_right: Motor = Motor(Ports.PORT8, False, GearSetting.RATIO_6_1)
 
-drive_motors_right: MotorGroup = MotorGroup(drive_fr, drive_mr, drive_br)
-drive_motors_left: MotorGroup = MotorGroup(drive_fl, drive_ml, drive_bl)
+left_group: MotorGroup = MotorGroup(top_left, bottom_left, back_left)
+right_group: MotorGroup = MotorGroup(top_right, bottom_right, back_right)
+
 
 # Pneumatics configuration
-goal_solenoid: DigitalOut = DigitalOut(brain.three_wire_port.a)
+#goal_solenoid: DigitalOut = DigitalOut(brain.three_wire_port.a)
 # endregion
 
 # region Auton Functions
 
 
 def move_forward(time: float, speed: int = 100) -> None:
-    drive_motors_right.spin(REVERSE, speed, PERCENT)
-    drive_motors_left.spin(REVERSE, speed, PERCENT)
+    right_group.spin(REVERSE, speed, PERCENT)
+    left_group.spin(REVERSE, speed, PERCENT)
     sleep(time, SECONDS)
-    drive_motors_right.stop()
-    drive_motors_left.stop()
+    right_group.stop()
+    left_group.stop()
 
 
 def move_backward(time: float, speed: int = 100) -> None:
-    drive_motors_right.spin(FORWARD, speed, PERCENT)
-    drive_motors_left.spin(FORWARD, speed, PERCENT)
+    right_group.spin(FORWARD, speed, PERCENT)
+    left_group.spin(FORWARD, speed, PERCENT)
     sleep(time, SECONDS)
-    drive_motors_right.stop()
-    drive_motors_left.stop()
+    right_group.stop()
+    left_group.stop()
 
 
 def turn_right(time: float, speed: int = 100) -> None:
-    drive_motors_right.spin(REVERSE, speed, PERCENT)
-    drive_motors_left.spin(FORWARD, speed, PERCENT)
+    right_group.spin(REVERSE, speed, PERCENT)
+    left_group.spin(FORWARD, speed, PERCENT)
     sleep(time, SECONDS)
-    drive_motors_right.stop()
-    drive_motors_left.stop()
+    right_group.stop()
+    left_group.stop()
 
 
 def turn_left(time: float, speed: int = 100) -> None:
-    drive_motors_right.spin(FORWARD, speed, PERCENT)
-    drive_motors_left.spin(REVERSE, speed, PERCENT)
+    right_group.spin(FORWARD, speed, PERCENT)
+    left_group.spin(REVERSE, speed, PERCENT)
     sleep(time, SECONDS)
-    drive_motors_right.stop()
-    drive_motors_left.stop()
+    right_group.stop()
+    left_group.stop()
 
 
 def intake_and_conveyer(time: float) -> None:
-    intake.spin(FORWARD)
-    conveyor.spin(FORWARD)
+    #intake.spin(FORWARD)
+    #conveyor.spin(FORWARD)
     sleep(time, SECONDS)
-    intake.stop()
-    conveyor.stop()
+    #intake.stop()
+    #conveyor.stop()
 
 
 def grab(time: float) -> None:
-    intake.spin(FORWARD)
+    #intake.spin(FORWARD)
     sleep(time, SECONDS)
-    intake.stop()
+    #intake.stop()
 
 
 def convey(time: float) -> None:
-    conveyor.spin(FORWARD)
+    #conveyor.spin(FORWARD)
     sleep(time, SECONDS)
-    conveyor.stop()
+    #conveyor.stop()
 
 
-def switch_goal_lock() -> None:
-    if goal_solenoid.value() == 0:
-        goal_solenoid.set(True)
-    else:
-        goal_solenoid.set(False)
+#def switch_goal_lock() -> None:
+ #   if goal_solenoid.value() == 0:
+        #goal_solenoid.set(True)
+  #  else:
+        #goal_solenoid.set(False)
 
 
 # endregion
@@ -101,35 +100,36 @@ def switch_goal_lock() -> None:
 
 
 def controller_R1_pressed() -> None:
-    conveyor.spin(FORWARD)
+    #conveyor.spin(FORWARD)
     while controller_1.buttonR1.pressing():
         wait(5, MSEC)
-    conveyor.stop()
+    #conveyor.stop()
 
 
 def controller_L1_pressed() -> None:
-    conveyor.spin(REVERSE)
+    #conveyor.spin(REVERSE)
     while controller_1.buttonL1.pressing():
         wait(5, MSEC)
-    conveyor.stop()
+    #conveyor.stop()
 
 
 def controller_R2_pressed() -> None:
-    intake.spin(FORWARD)
+    #intake.spin(FORWARD)
     while controller_1.buttonR2.pressing():
         wait(5, MSEC)
-    intake.stop()
+    #intake.stop()
 
 
 def controller_L2_pressed() -> None:
-    intake.spin(REVERSE)
+    #intake.spin(REVERSE)
     while controller_1.buttonL2.pressing():
         wait(5, MSEC)
-    intake.stop()
+    #intake.stop()
 
 
 def controller_A_pressed() -> None:
-    switch_goal_lock()
+    #switch_goal_lock()
+    pass
 
 
 controller_1.buttonR1.pressed(controller_R1_pressed)
@@ -147,26 +147,28 @@ wait(15, MSEC)
 def drive_task() -> None:
     while True:        
         # Motor control
-        drive_motors_right.spin(FORWARD)
-        drive_motors_left.spin(FORWARD)
+        right_group.spin(FORWARD)
+        left_group.spin(FORWARD)
 
-        drive_motors_right.set_velocity(controller_1.axis2.position(), PERCENT)
-        drive_motors_left.set_velocity(controller_1.axis3.position(), PERCENT)
-        print(drive_motors_left.velocity(PERCENT), drive_motors_right.velocity(PERCENT))
+        right_group.set_velocity(controller_1.axis2.position(), PERCENT)
+        left_group.set_velocity(controller_1.axis3.position(), PERCENT)
+        print(left_group.velocity(PERCENT), right_group.velocity(PERCENT))
 
         wait(5, MSEC)
 
 def pre_autonomous() -> None:
-    conveyor.set_velocity(100, PERCENT)
-    intake.set_velocity(100, PERCENT)
-    goal_solenoid.set(0)
-
+    #conveyor.set_velocity(75, PERCENT)
+    #intake.set_velocity(100, PERCENT)
+    #goal_solenoid.set(0)
+    pass
 
 def autonomous() -> None:
-    move_forward(0.5)
-    intake_and_conveyer(1.3)
-    turn_right(0.9)
-    move_backward(1.4)
+    pass
+    #move_forward(0.5)
+    #turn_right(0.9)
+    #move_backward(1.8)
+    #switch_goal_lock()
+    #intake_and_conveyer(5)
 
 
 def user_control() -> None:
