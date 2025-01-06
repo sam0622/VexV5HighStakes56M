@@ -17,51 +17,51 @@ brain: Brain = Brain()
 controller_1: Controller = Controller()
 
 # Motor configuration
-top_left: Motor = Motor(Ports.PORT18, False, GearSetting.RATIO_6_1)
-bottom_left: Motor = Motor(Ports.PORT17, True, GearSetting.RATIO_6_1)
-back_left: Motor = Motor(Ports.PORT16, True, GearSetting.RATIO_6_1)
+top_left: Motor = Motor(Ports.PORT18, True, GearSetting.RATIO_6_1)
+bottom_left: Motor = Motor(Ports.PORT17, False, GearSetting.RATIO_6_1)
+back_left: Motor = Motor(Ports.PORT16, False, GearSetting.RATIO_6_1)
 top_right: Motor = Motor(Ports.PORT10, False, GearSetting.RATIO_6_1)
-bottom_right: Motor = Motor(Ports.PORT9, False, GearSetting.RATIO_6_1)
-back_right: Motor = Motor(Ports.PORT8, False, GearSetting.RATIO_6_1)
+bottom_right: Motor = Motor(Ports.PORT9, True, GearSetting.RATIO_6_1)
+back_right: Motor = Motor(Ports.PORT8, True, GearSetting.RATIO_6_1)
 
 left_group: MotorGroup = MotorGroup(top_left, bottom_left, back_left)
 right_group: MotorGroup = MotorGroup(top_right, bottom_right, back_right)
 
 
 # Pneumatics configuration
-#goal_solenoid: DigitalOut = DigitalOut(brain.three_wire_port.a)
+goal_solenoid: DigitalOut = DigitalOut(brain.three_wire_port.a)
 # endregion
 
 # region Auton Functions
 
 
 def move_forward(time: float, speed: int = 100) -> None:
-    right_group.spin(REVERSE, speed, PERCENT)
-    left_group.spin(REVERSE, speed, PERCENT)
+    right_group.spin(FORWARD, speed, PERCENT)
+    left_group.spin(FORWARD, speed, PERCENT)
     sleep(time, SECONDS)
     right_group.stop()
     left_group.stop()
 
 
 def move_backward(time: float, speed: int = 100) -> None:
-    right_group.spin(FORWARD, speed, PERCENT)
-    left_group.spin(FORWARD, speed, PERCENT)
+    right_group.spin(REVERSE, speed, PERCENT)
+    left_group.spin(REVERSE, speed, PERCENT)
     sleep(time, SECONDS)
     right_group.stop()
     left_group.stop()
 
 
 def turn_right(time: float, speed: int = 100) -> None:
-    right_group.spin(REVERSE, speed, PERCENT)
-    left_group.spin(FORWARD, speed, PERCENT)
+    right_group.spin(FORWARD, speed, PERCENT)
+    left_group.spin(REVERSE, speed, PERCENT)
     sleep(time, SECONDS)
     right_group.stop()
     left_group.stop()
 
 
 def turn_left(time: float, speed: int = 100) -> None:
-    right_group.spin(FORWARD, speed, PERCENT)
-    left_group.spin(REVERSE, speed, PERCENT)
+    right_group.spin(REVERSE, speed, PERCENT)
+    left_group.spin(FORWARD, speed, PERCENT)
     sleep(time, SECONDS)
     right_group.stop()
     left_group.stop()
@@ -74,20 +74,7 @@ def intake_and_conveyer(time: float) -> None:
     #intake.stop()
     #conveyor.stop()
 
-
-def grab(time: float) -> None:
-    #intake.spin(FORWARD)
-    sleep(time, SECONDS)
-    #intake.stop()
-
-
-def convey(time: float) -> None:
-    #conveyor.spin(FORWARD)
-    sleep(time, SECONDS)
-    #conveyor.stop()
-
-
-#def switch_goal_lock() -> None:
+#def clamp_goal() -> None:
  #   if goal_solenoid.value() == 0:
         #goal_solenoid.set(True)
   #  else:
@@ -128,7 +115,7 @@ def controller_L2_pressed() -> None:
 
 
 def controller_A_pressed() -> None:
-    #switch_goal_lock()
+    #clamp_goal()
     pass
 
 
@@ -144,7 +131,7 @@ wait(15, MSEC)
 # region Control
 
 
-def drive_task() -> None:
+def driver_control() -> None:
     while True:        
         # Motor control
         right_group.spin(FORWARD)
@@ -164,15 +151,9 @@ def pre_autonomous() -> None:
 
 def autonomous() -> None:
     pass
-    #move_forward(0.5)
-    #turn_right(0.9)
-    #move_backward(1.8)
-    #switch_goal_lock()
-    #intake_and_conveyer(5)
-
 
 def user_control() -> None:
-    drive_task()
+    driver_control()
 
 
 comp: Competition = Competition(user_control, autonomous)
