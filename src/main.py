@@ -32,6 +32,10 @@ right_group: MotorGroup = MotorGroup(top_right, bottom_right, back_right)
 # Pneumatics configuration
 goal_solenoid: DigitalOut = DigitalOut(brain.three_wire_port.a)
 
+# Global variables
+precision_mode: bool = False
+
+
 # endregion
 
 # region Auton Functions
@@ -120,6 +124,10 @@ def controller_L2_pressed() -> None:
 def controller_A_pressed() -> None:
     clamp_goal()
 
+def controller_up_pressed() -> None:
+    global precision_mode
+    precision_mode = not precision_mode
+
 
 controller_1.buttonR1.pressed(controller_R1_pressed)
 controller_1.buttonL1.pressed(controller_L1_pressed)
@@ -137,17 +145,23 @@ def driver_control() -> None:
     while True:
         right_group.spin(FORWARD)
         left_group.spin(FORWARD)
-        right_group.set_velocity(controller_1.axis2.position(), PERCENT)
-        left_group.set_velocity(controller_1.axis3.position(), PERCENT)
+        if precision_mode:
+            right_group.set_velocity(controller_1.axis2.position() * 0.5, PERCENT)
+            left_group.set_velocity(controller_1.axis3.position() * 0.5, PERCENT)
+        else:
+            right_group.set_velocity(controller_1.axis2.position(), PERCENT)
+            left_group.set_velocity(controller_1.axis3.position(), PERCENT)
         print(left_group.velocity(PERCENT), right_group.velocity(PERCENT))
         wait(5, MSEC)
 
 
 def pre_autonomous() -> None:
+    global precision_mode
+    precision_mode = False
     conveyor.set_velocity(75, PERCENT)
     intake.set_velocity(100, PERCENT)
     goal_solenoid.set(0)
-    pass
+
 
 
 def autonomous() -> None:
