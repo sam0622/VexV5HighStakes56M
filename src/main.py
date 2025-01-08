@@ -124,9 +124,14 @@ def controller_L2_pressed() -> None:
 def controller_A_pressed() -> None:
     clamp_goal()
 
+
 def controller_up_pressed() -> None:
     global precision_mode
     precision_mode = not precision_mode
+    if precision_mode:
+        controller_1.rumble(".")
+    else:
+        controller_1.rumble("-")
 
 
 controller_1.buttonR1.pressed(controller_R1_pressed)
@@ -134,6 +139,7 @@ controller_1.buttonL1.pressed(controller_L1_pressed)
 controller_1.buttonR2.pressed(controller_R2_pressed)
 controller_1.buttonL2.pressed(controller_L2_pressed)
 controller_1.buttonA.pressed(controller_A_pressed)
+controller_1.buttonUp.pressed(controller_up_pressed)
 
 wait(15, MSEC)
 # endregion
@@ -151,7 +157,9 @@ def driver_control() -> None:
         else:
             right_group.set_velocity(controller_1.axis2.position(), PERCENT)
             left_group.set_velocity(controller_1.axis3.position(), PERCENT)
-        print(left_group.velocity(PERCENT), right_group.velocity(PERCENT))
+        print(
+            f"Left motors velocity: {left_group.velocity(PERCENT)}, Right motors velocity: {right_group.velocity(PERCENT)}, Precision mode: {precision_mode}"
+        )
         wait(5, MSEC)
 
 
@@ -161,7 +169,6 @@ def pre_autonomous() -> None:
     conveyor.set_velocity(75, PERCENT)
     intake.set_velocity(100, PERCENT)
     goal_solenoid.set(0)
-
 
 
 def autonomous() -> None:
