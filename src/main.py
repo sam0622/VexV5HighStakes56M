@@ -17,13 +17,14 @@ brain: Brain = Brain()
 controller_1: Controller = Controller()
 
 # Motor configuration
-top_left: Motor = Motor(Ports.PORT18, True, GearSetting.RATIO_6_1)
-bottom_left: Motor = Motor(Ports.PORT17, False, GearSetting.RATIO_6_1)
-back_left: Motor = Motor(Ports.PORT16, False, GearSetting.RATIO_6_1)
-top_right: Motor = Motor(Ports.PORT10, False, GearSetting.RATIO_6_1)
+top_left: Motor = Motor(Ports.PORT18, False, GearSetting.RATIO_6_1)
+bottom_left: Motor = Motor(Ports.PORT17, True, GearSetting.RATIO_6_1)
+back_left: Motor = Motor(Ports.PORT16, True, GearSetting.RATIO_6_1)
+top_right: Motor = Motor(Ports.PORT8, False, GearSetting.RATIO_6_1)
 bottom_right: Motor = Motor(Ports.PORT9, True, GearSetting.RATIO_6_1)
-back_right: Motor = Motor(Ports.PORT8, True, GearSetting.RATIO_6_1)
-
+back_right: Motor = Motor(Ports.PORT10, False, GearSetting.RATIO_6_1)
+conveyor: Motor = Motor(Ports.PORT20, False, GearSetting.RATIO_18_1)
+intake: Motor = Motor(Ports.PORT19, False, GearSetting.RATIO_18_1)
 left_group: MotorGroup = MotorGroup(top_left, bottom_left, back_left)
 right_group: MotorGroup = MotorGroup(top_right, bottom_right, back_right)
 
@@ -68,19 +69,19 @@ def turn_left(time: float, speed: int = 100) -> None:
     left_group.stop()
 
 
-def intake_and_conveyer(time: float) -> None:
-    # intake.spin(FORWARD)
-    # conveyor.spin(FORWARD)
+def intake_and_conveyor(time: float) -> None:
+    intake.spin(FORWARD)
+    conveyor.spin(FORWARD)
     sleep(time, SECONDS)
-    # intake.stop()
-    # conveyor.stop()
+    intake.stop()
+    conveyor.stop()
 
 
-# def clamp_goal() -> None:
-#   if goal_solenoid.value() == 0:
-# goal_solenoid.set(True)
-#  else:
-# goal_solenoid.set(False)
+def clamp_goal() -> None:
+    if goal_solenoid.value() == 0:
+        goal_solenoid.set(True)
+    else:
+        goal_solenoid.set(False)
 
 
 # endregion
@@ -89,36 +90,35 @@ def intake_and_conveyer(time: float) -> None:
 
 
 def controller_R1_pressed() -> None:
-    # conveyor.spin(FORWARD)
+    conveyor.spin(FORWARD)
     while controller_1.buttonR1.pressing():
         wait(5, MSEC)
-    # conveyor.stop()
+    conveyor.stop()
 
 
 def controller_L1_pressed() -> None:
-    # conveyor.spin(REVERSE)
+    conveyor.spin(REVERSE)
     while controller_1.buttonL1.pressing():
         wait(5, MSEC)
-    # conveyor.stop()
+    conveyor.stop()
 
 
 def controller_R2_pressed() -> None:
-    # intake.spin(FORWARD)
+    intake.spin(FORWARD)
     while controller_1.buttonR2.pressing():
         wait(5, MSEC)
-    # intake.stop()
+    intake.stop()
 
 
 def controller_L2_pressed() -> None:
-    # intake.spin(REVERSE)
+    intake.spin(REVERSE)
     while controller_1.buttonL2.pressing():
         wait(5, MSEC)
-    # intake.stop()
+    intake.stop()
 
 
 def controller_A_pressed() -> None:
-    # clamp_goal()
-    pass
+    clamp_goal()
 
 
 controller_1.buttonR1.pressed(controller_R1_pressed)
@@ -135,21 +135,18 @@ wait(15, MSEC)
 
 def driver_control() -> None:
     while True:
-        # Motor control
         right_group.spin(FORWARD)
         left_group.spin(FORWARD)
-
         right_group.set_velocity(controller_1.axis2.position(), PERCENT)
         left_group.set_velocity(controller_1.axis3.position(), PERCENT)
         print(left_group.velocity(PERCENT), right_group.velocity(PERCENT))
-
         wait(5, MSEC)
 
 
 def pre_autonomous() -> None:
-    # conveyor.set_velocity(75, PERCENT)
-    # intake.set_velocity(100, PERCENT)
-    # goal_solenoid.set(0)
+    conveyor.set_velocity(75, PERCENT)
+    intake.set_velocity(100, PERCENT)
+    goal_solenoid.set(0)
     pass
 
 
@@ -160,8 +157,6 @@ def autonomous() -> None:
 def user_control() -> None:
     driver_control()
 
-
-comp: Competition = Competition(user_control, autonomous)
 pre_autonomous()
-
+comp: Competition = Competition(user_control, autonomous)
 # endregion
