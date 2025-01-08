@@ -157,6 +157,7 @@ def autonomous() -> None:
 def user_control() -> None:
     driver_control()
 
+
 pre_autonomous()
 comp: Competition = Competition(user_control, autonomous)
 # endregion
