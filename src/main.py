@@ -31,6 +31,7 @@ right_group: MotorGroup = MotorGroup(top_right, bottom_right, back_right)
 
 # Pneumatics configuration
 goal_solenoid: DigitalOut = DigitalOut(brain.three_wire_port.a)
+goal_solenoid.set(True)
 
 # Global variables
 precision_mode: bool = False
@@ -83,9 +84,10 @@ def intake_and_conveyor(time: float) -> None:
 
 def clamp_goal() -> None:
     if goal_solenoid.value() == 0:
-        goal_solenoid.set(True)
+        goal_solenoid.set(1)
     else:
-        goal_solenoid.set(False)
+        goal_solenoid.set(0)
+    print(goal_solenoid.value())
 
 
 # endregion
@@ -157,9 +159,6 @@ def driver_control() -> None:
         else:
             right_group.set_velocity(controller_1.axis2.position(), PERCENT)
             left_group.set_velocity(controller_1.axis3.position(), PERCENT)
-        print(
-            f"Left motors velocity: {left_group.velocity(PERCENT)}, Right motors velocity: {right_group.velocity(PERCENT)}, Precision mode: {precision_mode}"
-        )
         wait(5, MSEC)
 
 
