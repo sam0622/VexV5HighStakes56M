@@ -33,9 +33,12 @@ right_group: MotorGroup = MotorGroup(top_right, bottom_right, back_right)
 goal_solenoid: DigitalOut = DigitalOut(brain.three_wire_port.a)
 goal_solenoid.set(True)
 
+# Button
+button: DigitalIn = DigitalIn(brain.three_wire_port.b)
+
 # Global variables
 precision_mode: bool = False
-
+offense: bool = True
 
 # endregion
 
@@ -170,7 +173,6 @@ wait(15, MSEC)
 
 
 def user_control() -> None:
-    return
     while True:
         right_group.spin(FORWARD)
         left_group.spin(FORWARD)
@@ -184,34 +186,76 @@ def user_control() -> None:
 
 
 def pre_autonomous() -> None:
-    global precision_mode
+    global precision_mode, offense
     precision_mode = False
     conveyor.set_velocity(75, PERCENT)
     intake.set_velocity(100, PERCENT)
     goal_solenoid.set(0)
+    previous: int = button.value()
+    while True: 
+        print(button.value(), offense)
+        # Check if the button is pressed down (value = 1) and it wasn't pressed before
+        if button.value() == 1 and previous == 0:
+            previous = 1  # Update previous to 1 (button is now pressed)
+            offense = not offense  # Toggle offense mode
+            if offense:
+                controller_1.screen.clear_line(1)
+                controller_1.screen.set_cursor(0, 1)
+                controller_1.screen.print("Offense")
+            else:
+                controller_1.screen.clear_line(1)
+                controller_1.screen.set_cursor(0, 1)
+                controller_1.screen.print("Defense")
+                
+            wait(500, MSEC)  # Debounce delay
+        elif button.value() == 0:  # Reset previous when button is released
+            previous = 0
+        wait(5, MSEC)  # Short delay to prevent high-frequency looping
+        if Competition.is_enabled():
+            break
+
 
 
 def autonomous() -> None:
-    goal_solenoid.set(0)
-    move_backward(0.5, 50)
-    turn_left(0.5, 50)
-    move_forward(1.15, 50)
-    clamp_goal()
-    clamp_goal()
-    clamp_goal()
-    move_backward(0.25, 50)
-    convey(2)
-    convey(1, True)
-    for i in range(2):
-        move_forward(0.1) 
-        move_backward(0.1)
-    turn_right(0.18, 50)
-    eat_and_run(1.25, 50)
-    for i in range(2):
-        move_forward(0.1) 
-        move_backward(0.1)
+    global offense
+    if offense:
+        move_backward(0.5, 50)
+        turn_left(0.5, 50)
+        move_forward(1.15, 50)
+        clamp_goal()
+        clamp_goal()
+        clamp_goal()
+        move_backward(0.25, 50)
+        convey(2)
+        convey(1, True)
+        for i in range(2):
+            move_forward(0.1) 
+            move_backward(0.1)
+        turn_right(0.18, 50)
+        eat_and_run(1.25, 50)
+        for i in range(2):
+            move_forward(0.1) 
+            move_backward(0.1)
+    else:
+        move_backward(0.5, 50)
+        turn_right(0.5, 50)
+        move_forward(1.15, 50)
+        clamp_goal()
+        clamp_goal()
+        clamp_goal()
+        move_backward(0.25, 50)
+        convey(2)
+        convey(1, True)
+        for i in range(2):
+            move_forward(0.1) 
+            move_backward(0.1)
+        turn_left(0.18, 50)
+        eat_and_run(1.25, 50)
+        for i in range(2):
+            move_forward(0.1) 
+            move_backward(0.1)
 
 
 pre_autonomous()
-comp: Competition = Competition(autonomous, user_control)
+comp: Competition = Competition(user_control, autonomous)
 # endregion
