@@ -74,16 +74,30 @@ def turn_left(time: float, speed: int = 100) -> None:
     left_group.stop()
 
 
-def intake_and_conveyor(time: float) -> None:
+def intake_and_conveyor(time: float, speed: int = 100) -> None:
     intake.spin(FORWARD)
     conveyor.spin(FORWARD)
     sleep(time, SECONDS)
     intake.stop()
     conveyor.stop()
 
-
-def convey(time: float) -> None:
+def eat_and_run(time: float, speed: int = 100) -> None:
+    intake.spin(FORWARD)
+    right_group.spin(REVERSE, speed, PERCENT)
+    left_group.spin(REVERSE, speed, PERCENT)
     conveyor.spin(FORWARD)
+    sleep(time, SECONDS)
+    right_group.stop()
+    left_group.stop()
+    sleep(1, SECONDS)
+    intake.stop()
+    conveyor.stop()
+
+def convey(time: float, reverse: bool = False) -> None:
+    if reverse:
+        conveyor.spin(REVERSE)
+    else:
+        conveyor.spin(FORWARD)
     sleep(time, SECONDS)
     conveyor.stop()
 
@@ -155,7 +169,7 @@ wait(15, MSEC)
 # region Control
 
 
-def driver_control() -> None:
+def user_control() -> None:
     return
     while True:
         right_group.spin(FORWARD)
@@ -181,15 +195,21 @@ def autonomous() -> None:
     goal_solenoid.set(0)
     move_backward(0.5, 50)
     turn_left(0.5, 50)
-    move_forward(1, 50)
+    move_forward(1.15, 50)
     clamp_goal()
     clamp_goal()
     clamp_goal()
-    convey(1)  
-
-
-def user_control() -> None:
-    driver_control()
+    move_backward(0.25, 50)
+    convey(2)
+    convey(1, True)
+    for i in range(2):
+        move_forward(0.1) 
+        move_backward(0.1)
+    turn_right(0.18, 50)
+    eat_and_run(1.25, 50)
+    for i in range(2):
+        move_forward(0.1) 
+        move_backward(0.1)
 
 
 pre_autonomous()
