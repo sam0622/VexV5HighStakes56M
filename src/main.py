@@ -84,6 +84,7 @@ def intake_and_conveyor(time: float, speed: int = 100) -> None:
     intake.stop()
     conveyor.stop()
 
+
 def eat_and_run(time: float, speed: int = 100) -> None:
     intake.spin(FORWARD)
     right_group.spin(REVERSE, speed, PERCENT)
@@ -95,6 +96,7 @@ def eat_and_run(time: float, speed: int = 100) -> None:
     sleep(1, SECONDS)
     intake.stop()
     conveyor.stop()
+
 
 def convey(time: float, reverse: bool = False) -> None:
     if reverse:
@@ -192,12 +194,12 @@ def pre_autonomous() -> None:
     intake.set_velocity(100, PERCENT)
     goal_solenoid.set(0)
     previous: int = button.value()
-    while True: 
+    controller_1.screen.print("Offense")
+    while True:
         print(button.value(), offense)
-        # Check if the button is pressed down (value = 1) and it wasn't pressed before
         if button.value() == 1 and previous == 0:
-            previous = 1  # Update previous to 1 (button is now pressed)
-            offense = not offense  # Toggle offense mode
+            previous = 1
+            offense = not offense
             if offense:
                 controller_1.screen.clear_line(1)
                 controller_1.screen.set_cursor(0, 1)
@@ -206,14 +208,15 @@ def pre_autonomous() -> None:
                 controller_1.screen.clear_line(1)
                 controller_1.screen.set_cursor(0, 1)
                 controller_1.screen.print("Defense")
-                
-            wait(500, MSEC)  # Debounce delay
-        elif button.value() == 0:  # Reset previous when button is released
+
+            wait(500, MSEC)
+
+        elif button.value() == 0:
             previous = 0
-        wait(5, MSEC)  # Short delay to prevent high-frequency looping
+        wait(5, MSEC)
+
         if Competition.is_enabled():
             break
-
 
 
 def autonomous() -> None:
@@ -247,12 +250,12 @@ def autonomous() -> None:
         convey(2)
         convey(1, True)
         for i in range(2):
-            move_forward(0.1) 
+            move_forward(0.1)
             move_backward(0.1)
-        turn_left(0.18, 50)
-        eat_and_run(1.25, 50)
+        turn_left(0.17, 50)
+        eat_and_run(1.15, 50)
         for i in range(2):
-            move_forward(0.1) 
+            move_forward(0.1)
             move_backward(0.1)
 
 
