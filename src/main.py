@@ -77,9 +77,13 @@ def turn_left(time: float, speed: int = 100) -> None:
     left_group.stop()
 
 
-def intake_and_conveyor(time: float, speed: int = 100) -> None:
-    intake.spin(FORWARD)
-    conveyor.spin(FORWARD)
+def intake_and_conveyor(time: float, speed: int = 100, reverse: bool = False) -> None:
+    if reverse:
+        intake.spin(REVERSE)
+        conveyor.spin(REVERSE)
+    else:
+        intake.spin(FORWARD)
+        conveyor.spin(FORWARD)
     sleep(time, SECONDS)
     intake.stop()
     conveyor.stop()
@@ -93,7 +97,7 @@ def eat_and_run(time: float, speed: int = 100) -> None:
     sleep(time, SECONDS)
     right_group.stop()
     left_group.stop()
-    sleep(1, SECONDS)
+    sleep(0.9, SECONDS)
     intake.stop()
     conveyor.stop()
 
@@ -239,6 +243,7 @@ def autonomous() -> None:
         for i in range(2):
             move_forward(0.1) 
             move_backward(0.1)
+        intake_and_conveyor(1, 50, True)
     else:
         move_backward(0.5, 50)
         turn_right(0.5, 50)
@@ -257,6 +262,7 @@ def autonomous() -> None:
         for i in range(2):
             move_forward(0.1)
             move_backward(0.1)
+        intake_and_conveyor(1, 50, True)
 
 
 pre_autonomous()
