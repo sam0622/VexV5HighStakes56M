@@ -25,7 +25,7 @@ bottom_right: Motor = Motor(Ports.PORT9, True, GearSetting.RATIO_6_1)
 back_right: Motor = Motor(Ports.PORT10, False, GearSetting.RATIO_6_1)
 conveyor: Motor = Motor(Ports.PORT20, False, GearSetting.RATIO_18_1)
 intake: Motor = Motor(Ports.PORT19, False, GearSetting.RATIO_18_1)
-lady_brown: Motor = Motor(Ports.PORT2, False, GearSetting.RATIO_18_1)
+lady_brown: Motor = Motor(Ports.PORT7, True, GearSetting.RATIO_18_1)
 left_group: MotorGroup = MotorGroup(top_left, bottom_left, back_left)
 right_group: MotorGroup = MotorGroup(top_right, bottom_right, back_right)
 motors: MotorGroup = MotorGroup(
@@ -194,6 +194,7 @@ controller_1.buttonR2.pressed(controller_R2_pressed)
 controller_1.buttonL2.pressed(controller_L2_pressed)
 controller_1.buttonA.pressed(controller_A_pressed)
 controller_1.buttonUp.pressed(controller_up_pressed)
+controller_1.buttonDown.pressed(controller_down_pressed)
 
 wait(15, MSEC)
 # endregion
