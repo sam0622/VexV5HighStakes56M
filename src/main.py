@@ -25,8 +25,20 @@ bottom_right: Motor = Motor(Ports.PORT9, True, GearSetting.RATIO_6_1)
 back_right: Motor = Motor(Ports.PORT10, False, GearSetting.RATIO_6_1)
 conveyor: Motor = Motor(Ports.PORT20, False, GearSetting.RATIO_18_1)
 intake: Motor = Motor(Ports.PORT19, False, GearSetting.RATIO_18_1)
+lady_brown: Motor = Motor(Ports.PORT2, False, GearSetting.RATIO_18_1)
 left_group: MotorGroup = MotorGroup(top_left, bottom_left, back_left)
 right_group: MotorGroup = MotorGroup(top_right, bottom_right, back_right)
+motors: MotorGroup = MotorGroup(
+    top_left,
+    bottom_left,
+    back_left,
+    top_right,
+    bottom_right,
+    back_right,
+    conveyor,
+    intake,
+    lady_brown,
+)
 
 
 # Pneumatics configuration
@@ -39,6 +51,9 @@ button: DigitalIn = DigitalIn(brain.three_wire_port.b)
 # Global variables
 precision_mode: bool = False
 offense: bool = True
+lady_brown_extended: bool = False
+LOWER_BOUND: int = -150
+UPPER_BOUND: int = 0
 
 # endregion
 
@@ -165,6 +180,14 @@ def controller_up_pressed() -> None:
         controller_1.rumble("-")
 
 
+def controller_down_pressed() -> None:
+    global lady_brown_extended
+    if lady_brown_extended:
+        lady_brown.set_position(1, DEGREES)
+    else:
+        lady_brown.set_position(-150, DEGREES)
+
+
 controller_1.buttonR1.pressed(controller_R1_pressed)
 controller_1.buttonL1.pressed(controller_L1_pressed)
 controller_1.buttonR2.pressed(controller_R2_pressed)
@@ -176,6 +199,16 @@ wait(15, MSEC)
 # endregion
 
 # region Control
+
+
+def enforce_position_limits() -> None:
+    global LOWER_BOUND, UPPER_BOUND
+    while True:
+        print(lady_brown.position())
+        if lady_brown.position() < LOWER_BOUND:
+            lady_brown.set_position(LOWER_BOUND, DEGREES)
+        elif lady_brown.position() > UPPER_BOUND:
+            lady_brown.set_position(UPPER_BOUND, DEGREES)
 
 
 def user_control() -> None:
@@ -194,6 +227,7 @@ def user_control() -> None:
 def pre_autonomous() -> None:
     global precision_mode, offense
     precision_mode = False
+    motors.set_stopping(HOLD)
     conveyor.set_velocity(75, PERCENT)
     intake.set_velocity(100, PERCENT)
     goal_solenoid.set(0)
@@ -238,13 +272,13 @@ def autonomous() -> None:
         convey(2)
         convey(1, True)
         for i in range(2):
-            move_forward(0.1) 
+            move_forward(0.1)
             move_backward(0.1)
         # Scoring second ring
         turn_right(0.2, 50)
         eat_and_run(1.25, 50)
         for i in range(2):
-            move_forward(0.1) 
+            move_forward(0.1)
             move_backward(0.1)
         intake_and_conveyor(1, 50, True)
     else:
@@ -268,6 +302,7 @@ def autonomous() -> None:
         intake_and_conveyor(1, 50, True)
 
 
+limiter: Thread = Thread(enforce_position_limits)
 pre_autonomous()
 comp: Competition = Competition(user_control, autonomous)
 # endregion
