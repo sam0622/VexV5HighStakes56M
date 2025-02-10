@@ -226,26 +226,29 @@ def pre_autonomous() -> None:
 def autonomous() -> None:
     global offense
     if offense:
-        move_backward(0.5, 50)
+        # Goal grabbing
+        move_backward(0.53, 50)
         turn_left(0.5, 50)
         move_forward(1.15, 50)
         clamp_goal()
         clamp_goal()
         clamp_goal()
+        # Scoring first ring
         move_backward(0.25, 50)
         convey(2)
         convey(1, True)
         for i in range(2):
             move_forward(0.1) 
             move_backward(0.1)
-        turn_right(0.18, 50)
+        # Scoring second ring
+        turn_right(0.2, 50)
         eat_and_run(1.25, 50)
         for i in range(2):
             move_forward(0.1) 
             move_backward(0.1)
         intake_and_conveyor(1, 50, True)
     else:
-        move_backward(0.5, 50)
+        move_backward(0.53, 50)
         turn_right(0.5, 50)
         move_forward(1.15, 50)
         clamp_goal()
@@ -257,7 +260,7 @@ def autonomous() -> None:
         for i in range(2):
             move_forward(0.1)
             move_backward(0.1)
-        turn_left(0.17, 50)
+        turn_left(0.2, 50)
         eat_and_run(1.15, 50)
         for i in range(2):
             move_forward(0.1)
