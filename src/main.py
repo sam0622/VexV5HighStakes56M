@@ -51,9 +51,6 @@ button: DigitalIn = DigitalIn(brain.three_wire_port.b)
 # Global variables
 precision_mode: bool = False
 offense: bool = True
-lady_brown_extended: bool = False
-LOWER_BOUND: int = -150
-UPPER_BOUND: int = 0
 
 # endregion
 
@@ -108,6 +105,7 @@ def eat_and_run(time: float, speed: int = 100) -> None:
     intake.spin(FORWARD)
     right_group.spin(REVERSE, speed, PERCENT)
     left_group.spin(REVERSE, speed, PERCENT)
+    conveyor.set_velocity(75, PERCENT)
     conveyor.spin(FORWARD)
     sleep(time, SECONDS)
     right_group.stop()
@@ -124,6 +122,22 @@ def convey(time: float, reverse: bool = False) -> None:
         conveyor.spin(FORWARD)
     sleep(time, SECONDS)
     conveyor.stop()
+
+
+def mr_aneskos_cat(time: float, reverse: bool = False) -> None:
+    lady_brown.set_velocity(100, PERCENT)
+    if reverse:
+        lady_brown.spin(REVERSE)
+    else:
+        lady_brown.spin(FORWARD)
+    sleep(time, SECONDS)
+    lady_brown.stop()
+
+
+def thug_shaker() -> None:
+    for i in range(2):
+            move_forward(0.1)
+            move_backward(0.1)
 
 
 def clamp_goal() -> None:
@@ -167,10 +181,6 @@ def controller_L2_pressed() -> None:
     intake.stop()
 
 
-def controller_A_pressed() -> None:
-    clamp_goal()
-
-
 def controller_up_pressed() -> None:
     global precision_mode
     precision_mode = not precision_mode
@@ -180,12 +190,25 @@ def controller_up_pressed() -> None:
         controller_1.rumble("-")
 
 
+def controller_A_pressed() -> None:
+    clamp_goal()
+
+
+def controller_left_pressed() -> None:
+    lady_brown.spin(REVERSE, 100, PERCENT)
+    while controller_1.buttonLeft.pressing():
+        wait(5, MSEC)
+    lady_brown.stop()
+
+
+def controller_right_pressed() -> None:
+    lady_brown.spin(FORWARD, 100, PERCENT)
+    while controller_1.buttonRight.pressing():
+        wait(5, MSEC)
+    lady_brown.stop()
+
 def controller_down_pressed() -> None:
-    global lady_brown_extended
-    if lady_brown_extended:
-        lady_brown.set_position(1, DEGREES)
-    else:
-        lady_brown.set_position(-150, DEGREES)
+    lady_brown.spin_to_position(-12, DEGREES, 100, PERCENT)
 
 
 controller_1.buttonR1.pressed(controller_R1_pressed)
@@ -194,6 +217,8 @@ controller_1.buttonR2.pressed(controller_R2_pressed)
 controller_1.buttonL2.pressed(controller_L2_pressed)
 controller_1.buttonA.pressed(controller_A_pressed)
 controller_1.buttonUp.pressed(controller_up_pressed)
+controller_1.buttonLeft.pressed(controller_left_pressed)
+controller_1.buttonRight.pressed(controller_right_pressed)
 controller_1.buttonDown.pressed(controller_down_pressed)
 
 wait(15, MSEC)
@@ -202,18 +227,13 @@ wait(15, MSEC)
 # region Control
 
 
-def enforce_position_limits() -> None:
-    global LOWER_BOUND, UPPER_BOUND
-    while True:
-        print(lady_brown.position())
-        if lady_brown.position() < LOWER_BOUND:
-            lady_brown.set_position(LOWER_BOUND, DEGREES)
-        elif lady_brown.position() > UPPER_BOUND:
-            lady_brown.set_position(UPPER_BOUND, DEGREES)
-
-
 def user_control() -> None:
     while True:
+        if lady_brown.position() > 0:
+            lady_brown.spin_to_position(0, DEGREES, 100, PERCENT)
+        elif lady_brown.position() < -975:
+            lady_brown.spin_to_position(-975, DEGREES, 100, PERCENT)
+        print(lady_brown.position(), lady_brown.temperature())
         right_group.spin(FORWARD)
         left_group.spin(FORWARD)
         if precision_mode:
@@ -261,49 +281,44 @@ def pre_autonomous() -> None:
 def autonomous() -> None:
     global offense
     if offense:
-        # Goal grabbing
-        move_backward(0.53, 50)
-        turn_left(0.5, 50)
-        move_forward(1.15, 50)
+        mr_aneskos_cat(0.4, True)
+        move_forward(0.65, 75)  
         clamp_goal()
-        clamp_goal()
-        clamp_goal()
-        # Scoring first ring
-        move_backward(0.25, 50)
-        convey(2)
-        convey(1, True)
+        thug_shaker()
+        convey(1.5)
+        thug_shaker()
         for i in range(2):
-            move_forward(0.1)
-            move_backward(0.1)
-        # Scoring second ring
-        turn_right(0.2, 50)
-        eat_and_run(1.25, 50)
+            convey(0.5, True)
+            convey(0.5)
+        turn_right(0.3)   
+        eat_and_run(1.25, 50)   
+        convey(1)
+        thug_shaker()
         for i in range(2):
-            move_forward(0.1)
-            move_backward(0.1)
-        intake_and_conveyor(1, 50, True)
+            convey(0.5, True)
+            convey(0.5)
+        move_forward(2, 50)
     else:
-        move_backward(0.53, 50)
-        turn_right(0.5, 50)
-        move_forward(1.15, 50)
+        mr_aneskos_cat(0.4, True)
+        move_forward(0.65, 75)  
         clamp_goal()
-        clamp_goal()
-        clamp_goal()
-        move_backward(0.25, 50)
-        convey(2)
-        convey(1, True)
+        thug_shaker()
+        convey(1.5)
+        thug_shaker()
         for i in range(2):
-            move_forward(0.1)
-            move_backward(0.1)
-        turn_left(0.2, 50)
-        eat_and_run(1.15, 50)
+            convey(0.5, True)
+            convey(0.5)
+        turn_left(0.3)   
+        eat_and_run(1.25, 50)   
+        convey(1)
+        thug_shaker()
         for i in range(2):
-            move_forward(0.1)
-            move_backward(0.1)
-        intake_and_conveyor(1, 50, True)
+            convey(0.5, True)
+            convey(0.5)
+        move_forward(2, 50)
 
 
-limiter: Thread = Thread(enforce_position_limits)
+#limiter: Thread = Thread(position_limiter)
 pre_autonomous()
 comp: Competition = Competition(user_control, autonomous)
 # endregion
